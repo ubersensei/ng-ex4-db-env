@@ -4,9 +4,15 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var db = require('./db/mysqlConnection.js')
+
+var routes = require('./routes/index');
+var users = require('./routes/users');
 
 var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 app.use(favicon());
 app.use(logger('dev'));
@@ -15,7 +21,14 @@ app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/fetch', db.fetch);
+
+var env = process.env.NODE_ENV || 'development';
+if ('development' == env) {
+    app.use('/', users);
+}
+else {
+    app.use('/', routes);
+}
 
 
 /// catch 404 and forward to error handler
@@ -24,6 +37,9 @@ app.use(function(req, res, next) {
     err.status = 404;
     next(err);
 });
+
+
+
 
 
 /// error handlers
